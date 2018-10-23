@@ -1,25 +1,9 @@
-import requests
-from bs4 import BeautifulSoup
-
-class PlayerNotFound(Exception):
-	""" Raised when the GET request for a player returns 404 """
-
-def _get_role(div):
-	""" Make a role tuple from a role div """
-	wins = int(div.contents[2].attrs['data-value'])
-	role_name_div = div.contents[1]
-	role_name = role_name_div.contents[0].string
-	return (role_name, wins)
 
 class Player:
-	def __init__(self, btag, platform='pc'):
+	def __init__(self, btag, platform, soup):
 		self.btag = btag
-
-		link = f"https://www.overbuff.com/players/{platform}/{btag}"
-		req = requests.get(link, headers={'User-Agent': 'pybuff'})
-		if req.status_code == 404:
-			raise PlayerNotFound
-		self.soup = BeautifulSoup(req.text, 'html.parser')
+		self.platform = platform
+		self.soup = soup
 
 	def get_sr(self):
 		""" Returns an sr int """
@@ -35,8 +19,15 @@ class Player:
 			return [('', 0)]
 
 		roles = roles_container.contents[1].contents
+
+		def create_role(div):
+			""" Make a role tuple from a role div """
+			wins = int(div.contents[2].attrs['data-value'])
+			role_name_div = div.contents[1]
+			role_name = role_name_div.contents[0].string
+			return (role_name, wins)
 		
-		return [_get_role(div) for div in roles]
+		return [create_role(div) for div in roles]
 
 	def get_role(self):
 		""" Get the main role of this player """
