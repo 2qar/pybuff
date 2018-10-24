@@ -1,7 +1,5 @@
 import asyncio
 import pytest
-import sys
-sys.path.append('/home/tucker/Documents/git/pybuff/')
 
 from pybuff.grabber import get_player
 from pybuff.grabber import BadBattletag

@@ -1,4 +1,3 @@
-
 class Player:
     def __init__(self, btag, platform, soup):
         self.btag = btag
@@ -23,9 +22,10 @@ class Player:
         """ Get the amount of wins on each role for this player.
 
             :rtype:
-                list of tuples
+                list of tuples | None
             :returns:
-                A list with each role as a tuple in this format:
+                A list of role tuples in descending order based on wins.
+                The role tuples come in this format:
 
                     (str: name, int: wins)
 
@@ -35,9 +35,9 @@ class Player:
 
         roles_container = self.soup.find(class_='table-data')
         if not roles_container:
-            return [('', 0)]
+            return None
 
-        roles = roles_container.contents[1].contents
+        role_divs = roles_container.contents[1].contents
 
         def create_role(div):
             """ Make a role tuple from a role div """
@@ -46,19 +46,23 @@ class Player:
             role_name = role_name_div.contents[0].string
             return (role_name, wins)
 
-        return [create_role(div) for div in roles]
+        roles = [create_role(div) for div in role_divs]
+        roles = sorted(roles, key=lambda x: x[1], reverse=True)
+        return roles
 
     def get_role(self):
         """ Get the main role of this player.
             This assumes that the role with the most wins is their main.
 
             :rtype:
-                tuple
+                tuple | None
             :returns:
                 A tuple with the name and win count of their main role.
         """
 
-        return self.get_roles()[0]
+        roles = self.get_roles()
+        if roles:
+            return roles[0]
 
     def __str__(self):
         return self.btag
