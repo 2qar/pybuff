@@ -1,45 +1,51 @@
 import asyncio
-import aiohttp
+from aiohttp import ClientSession as Session
 from bs4 import BeautifulSoup
 from .player import Player
+import re
 
 user_agent = {'User-Agent': 'pybuff'}
 
-class PlayerNotFound(Exception):
-	""" Raised when the GET request for a player returns 404 """
-	def __init__(self, message, btag):
-		super().__init__(message)
-		self.errors = btag
-
 class BadBattletag(Exception):
-	""" Raised when trying to get a player with a bad battletag """
+	""" Raised when a battletag is invalid """
 	def __init__(self, message, btag):
 		super().__init__(message)
-		self.errors = btag
+		self.btag = btag
 
 async def get_player(battletag, platform='pc'):
-	""" Return a player object from a battletag 
-		Valid battletags:
-			name-number
-			name#number
+	""" Return a Player object from a battletag.
+
+		:param str battletag:
+			A player's Battlenet tag.
+			ex. Tydra#11863
+		:param str platform:
+			The platform the user is on.
+			Valid platforms:
+				- pc
+				- xbl
+				- psn
+		:rtype:
+			pybuff.Player object
+		:returns:
+			An overview of a player's profile.
 	"""
-	url_tag = battletag
+	pc_btag = re.compile('\w{1,}#\d{4,6}')
+	if not pc_btag.match(battletag) and platform == 'pc':
+		raise BadBattletag(
+			f"\"{battletag}\" is not a valid battletag.",
+			battletag,
+		)
 
-	if '#' in url_tag:
-		url_tag = url_tag.replace('#', '-')
+	url_tag = battletag.replace('#', '-')
+	url = f"https://overbuff.com/players/{platform}/{url_tag}"
+	async with Session() as session:
+		async with session.request('GET', url, headers=user_agent) as page:
+			if page.status == 404:
+				await session.close()
+				raise BadBattletag(
+					f"Unable to find \"{battletag}\".",
+					battletag,
+				)
 
-	split = url_tag.split('-')
-	if len(split) != 2:
-		raise BadBattletag("# or - in weird spot", battletag)
-	try:
-		int(split[1])
-	except:
-		raise BadBattletag("Expected a num on right side of tag", battletag)
-
-	url = f"https://overbuff.com/{platform}/{url_tag}"
-	async with aiohttp.request('GET', url, headers=user_agent) as page:
-		if page.status == '404':
-			raise PlayerNotFound("Unable to find player.", battletag)
-		
-		soup = BeautifulSoup(await page.text(), 'html.parser')
-		return Player(battletag, platform, soup)
+			soup = BeautifulSoup(await page.text(), 'html.parser')
+			return Player(battletag, platform, soup)
