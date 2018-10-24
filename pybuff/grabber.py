@@ -19,16 +19,17 @@ async def get_player(battletag, platform='pc'):
 			A player's Battlenet tag.
 			ex. Tydra#11863
 		:param str platform:
-			The platform the user is on.
+			The platform the player is on; default is 'pc'
 			Valid platforms:
 				- pc
 				- xbl
 				- psn
 		:rtype:
-			pybuff.Player object
+			Player object
 		:returns:
 			An overview of a player's profile.
 	"""
+
 	pc_btag = re.compile('\w{1,}#\d{4,6}')
 	if not pc_btag.match(battletag) and platform == 'pc':
 		raise BadBattletag(

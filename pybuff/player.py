@@ -6,14 +6,33 @@ class Player:
 		self.soup = soup
 
 	def get_sr(self):
-		""" Returns an sr int """
+		""" Get the SR of this player.
+			If SR isn't displayed on their profile, returns none.
+
+			:rtype:
+				integer | None
+			:returns:
+				The SR of this player.
+		"""
+
 		sr_div = self.soup.find(class_='player-skill-rating')
-		if not sr_div:
-			return 0
-		return int(sr_div.contents[0])
+		if sr_div:
+			return int(sr_div.contents[0])
 
 	def get_roles(self):
-		""" Return a list of tuples with a role name and win count """
+		""" Get the amount of wins on each role for this player.
+
+			:rtype:
+				list of tuples
+			:returns:
+				A list with each role as a tuple in this format:
+
+					(str: name, int: wins)
+
+					For example:
+					('Tank', 112)
+		"""
+
 		roles_container = self.soup.find(class_='table-data')
 		if not roles_container:
 			return [('', 0)]
@@ -30,7 +49,15 @@ class Player:
 		return [create_role(div) for div in roles]
 
 	def get_role(self):
-		""" Get the main role of this player """
+		""" Get the main role of this player.
+			This assumes that the role with the most wins is their main.
+
+			:rtype:
+				tuple
+			:returns:
+				A tuple with the name and win count of their main role.
+		"""
+
 		return self.get_roles()[0]
 
 	def __str__(self):
