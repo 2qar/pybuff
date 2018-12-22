@@ -1,6 +1,7 @@
 __pycache__/
 *.swp
 Pipfile
+.idea/
 
 build/
 dist/
