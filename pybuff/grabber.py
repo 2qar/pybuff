@@ -6,13 +6,15 @@ import re
 
 user_agent = {'User-Agent': 'pybuff'}
 
+
 class BadBattletag(Exception):
     """ Raised when a battletag is invalid """
     def __init__(self, message, btag):
         super().__init__(message)
         self.btag = btag
 
-async def get_player(battletag, platform='pc'):
+
+async def get_player(battletag, platform='pc', session=None):
     """ Return a Player object from a battletag.
 
         :param str battletag:
@@ -24,6 +26,9 @@ async def get_player(battletag, platform='pc'):
                 - pc
                 - xbl
                 - psn
+        :param aiohttp.ClientSession session:
+            Session to make requests with.
+            Passing an existing session would be a little quicker when calling this method a lot.
         :rtype:
             Player object
         :returns:
@@ -39,8 +44,9 @@ async def get_player(battletag, platform='pc'):
 
     url_tag = battletag.replace('#', '-')
     url = f"https://overbuff.com/players/{platform}/{url_tag}"
-    async with Session() as session:
-        async with session.request('GET', url, headers=user_agent) as page:
+
+    async def _get_player(client_session: Session) -> Player:
+        async with client_session.get(url, headers=user_agent) as page:
             if page.status == 404:
                 await session.close()
                 raise BadBattletag(
@@ -50,3 +56,9 @@ async def get_player(battletag, platform='pc'):
 
             soup = BeautifulSoup(await page.text(), 'html.parser')
             return Player(battletag, platform, soup)
+
+    if not session:
+        async with Session() as session:
+            return await _get_player(session)
+    else:
+        return await _get_player(session)

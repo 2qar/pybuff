@@ -1,5 +1,6 @@
 import asyncio
 import pytest
+from aiohttp import ClientSession
 
 from pybuff.grabber import get_player
 from pybuff.grabber import BadBattletag
@@ -24,3 +25,9 @@ async def test_get_player_invalid_battletag():
 async def test_get_player_nonexistent():
     with pytest.raises(BadBattletag):
         await get_player('Ogdog#1234')
+
+@pytest.mark.asyncio
+async def test_get_player_with_session():
+    async with ClientSession() as session:
+        player = await get_player('Tydra#11863', session=session)
+        assert str(player) == 'Tydra#11863'
