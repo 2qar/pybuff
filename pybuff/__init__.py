@@ -11,4 +11,4 @@ __copyright__ = 'Copyright 2018 BigHeadGeorge'
 __license__ = 'MIT'
 __version__ = '0.0.1'
 
-from .grabber import get_player
+from .grabber import get_player, BadBattletag
