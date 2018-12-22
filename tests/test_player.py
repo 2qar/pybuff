@@ -10,7 +10,7 @@ async def test_get_sr():
 @pytest.mark.asyncio
 async def test_get_sr_missing():
     player = await get_player('Tucker#4378')
-    assert player.get_sr() == None
+    assert player.get_sr() == 0
 
 @pytest.mark.asyncio
 async def test_get_roles():

@@ -9,7 +9,7 @@ class Player:
             If SR isn't displayed on their profile, returns none.
 
             :rtype:
-                integer | None
+                integer
             :returns:
                 The SR of this player.
         """
@@ -17,6 +17,8 @@ class Player:
         sr_div = self.soup.find(class_='player-skill-rating')
         if sr_div:
             return int(sr_div.contents[0])
+        else:
+            return 0
 
     def get_roles(self):
         """ Get the amount of wins on each role for this player.

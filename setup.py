@@ -7,7 +7,7 @@ setup(
         name="pybuff",
         author="BigHeadGeorge",
         url="https://github.com/BigHeadGeorge/overbuff.py",
-        version="0.0.1",
+        version="0.0.2",
         packages=['pybuff'],
         zip_safe=True,
         description="A scraper for grabbing info from Overbuff.",
