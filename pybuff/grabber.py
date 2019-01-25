@@ -48,7 +48,6 @@ async def get_player(battletag, platform='pc', session=None):
     async def _get_player(client_session: Session) -> Player:
         async with client_session.get(url, headers=user_agent) as page:
             if page.status == 404:
-                await session.close()
                 raise BadBattletag(
                     f"Unable to find \"{battletag}\".",
                     battletag,

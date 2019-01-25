@@ -31,3 +31,21 @@ async def test_get_player_with_session():
     async with ClientSession() as session:
         player = await get_player('Tydra#11863', session=session)
         assert str(player) == 'Tydra#11863'
+
+@pytest.mark.asyncio
+async def test_get_multiple_players_with_session():
+    async with ClientSession() as session:
+        for btag in ['Tydra#11863', 'heckoffnerd#1772', 'Tucker#4378']:
+            player = await get_player(btag, session=session)
+            assert str(player == btag)
+
+@pytest.mark.asyncio
+async def test_get_multiple_players_with_session_with_invalid_player():
+    async with ClientSession() as session:
+        for i, btag in enumerate(['Tydra#11863', 'Ogdog#1234', 'Tucker#4378']):
+            if i == 1:
+                with pytest.raises(BadBattletag):
+                    await get_player(btag, session=session)
+            else:
+                player = await get_player(btag, session=session)
+                assert str(player) == btag
